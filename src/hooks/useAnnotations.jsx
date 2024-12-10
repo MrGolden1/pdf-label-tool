@@ -102,6 +102,12 @@ export function AnnotationProvider({ children }) {
         URL.revokeObjectURL(url);
     };
 
+    const clearAnnotations = () => {
+        setAnnotations({});
+        setHistory([]);
+        setFuture([]);
+    };
+
     return (
         <AnnotationContext.Provider value={{
             annotations,
@@ -115,7 +121,8 @@ export function AnnotationProvider({ children }) {
             undo,
             redo,
             exportAnnotations,
-            deleteAnnotations
+            deleteAnnotations,
+            clearAnnotations
         }}>
             {children}
         </AnnotationContext.Provider>

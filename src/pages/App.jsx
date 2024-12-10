@@ -2,20 +2,13 @@ import React, { useState } from 'react';
 import PDFViewer from '../components/PDFViewer';
 import LabelSidebar from '../components/LabelSidebar';
 import Toolbar from '../components/Toolbar';
-import AnnotationCanvas from '../components/AnnotationCanvas';
 import { AnnotationProvider } from '../hooks/useAnnotations';
 import { LabelProvider } from '../hooks/useLabels';
 import { ScaleProvider } from '../hooks/useScale';
+import FileUpload from '../components/FileUpload'; // We'll create this component
 
 export default function App() {
     const [file, setFile] = useState(null);
-
-    const handleFileChange = (event) => {
-        const selectedFile = event.target.files[0];
-        if (selectedFile) {
-            setFile(selectedFile);
-        }
-    };
 
     return (
         <ScaleProvider>
@@ -25,7 +18,7 @@ export default function App() {
                         {/* Sidebar for labels and file upload */}
                         <div className="w-64 bg-gray-100 border-r border-gray-300 flex flex-col">
                             <div className="p-4 border-b border-gray-300">
-                                <input type="file" onChange={handleFileChange} accept="application/pdf" />
+                                <FileUpload setFile={setFile} />
                             </div>
                             <LabelSidebar />
                         </div>
@@ -41,8 +34,6 @@ export default function App() {
                                         <p>Please upload a PDF.</p>
                                     </div>
                                 )}
-                                {/* Remove the redundant AnnotationCanvas component */}
-                                {/* {file && <AnnotationCanvas />} */}
                             </div>
                         </div>
                     </div>

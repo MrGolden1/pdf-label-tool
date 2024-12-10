@@ -45,6 +45,9 @@ const PREDEFINED_LABELS = {
         { id: 'transaction_money_in', name: 'Transaction Money In', color: '#FFB3B3' },
         { id: 'transaction_money_out', name: 'Transaction Money Out', color: '#B3FFB3' },
         { id: 'transaction_balance', name: 'Transaction Balance', color: '#B3B3FF' }
+    ],
+    'Transaction': [
+        { id: 'transaction', name: 'Transaction', color: '#000000' }
     ]
 };
 
@@ -65,6 +68,65 @@ export function LabelProvider({ children }) {
         }));
     };
 
+    const toggleAllLabels = (visible) => {
+        setVisibilityState(
+            Object.values(PREDEFINED_LABELS).flat().reduce((acc, label) => {
+                acc[label.id] = visible;
+                return acc;
+            }, {})
+        );
+    };
+
+    const toggleCategoryLabels = (category, visible) => {
+        setVisibilityState(prev => {
+            const newState = { ...prev };
+            PREDEFINED_LABELS[category].forEach(label => {
+                newState[label.id] = visible;
+            });
+            return newState;
+        });
+    };
+
+    const selectNextLabel = () => {
+        if (!selectedLabel) {
+            const firstCategory = Object.values(PREDEFINED_LABELS)[0];
+            setSelectedLabel(firstCategory[0]);
+            return;
+        }
+
+        // Find current category
+        const currentCategory = Object.entries(PREDEFINED_LABELS).find(([_, labels]) =>
+            labels.some(label => label.id === selectedLabel.id)
+        );
+
+        if (currentCategory) {
+            const categoryLabels = currentCategory[1];
+            const currentIndex = categoryLabels.findIndex(label => label.id === selectedLabel.id);
+            const nextIndex = (currentIndex + 1) % categoryLabels.length;
+            setSelectedLabel(categoryLabels[nextIndex]);
+        }
+    };
+
+    const selectPreviousLabel = () => {
+        if (!selectedLabel) {
+            const firstCategory = Object.values(PREDEFINED_LABELS)[0];
+            setSelectedLabel(firstCategory[0]);
+            return;
+        }
+
+        // Find current category
+        const currentCategory = Object.entries(PREDEFINED_LABELS).find(([_, labels]) =>
+            labels.some(label => label.id === selectedLabel.id)
+        );
+
+        if (currentCategory) {
+            const categoryLabels = currentCategory[1];
+            const currentIndex = categoryLabels.findIndex(label => label.id === selectedLabel.id);
+            const prevIndex = (currentIndex - 1 + categoryLabels.length) % categoryLabels.length;
+            setSelectedLabel(categoryLabels[prevIndex]);
+        }
+    };
+
     return (
         <LabelContext.Provider value={{
             predefinedLabels: PREDEFINED_LABELS,
@@ -73,7 +135,11 @@ export function LabelProvider({ children }) {
             selectedLabel,
             setSelectedLabel,
             showLabels,
-            setShowLabels
+            setShowLabels,
+            toggleAllLabels,
+            toggleCategoryLabels,
+            selectNextLabel,
+            selectPreviousLabel
         }}>
             {children}
         </LabelContext.Provider>

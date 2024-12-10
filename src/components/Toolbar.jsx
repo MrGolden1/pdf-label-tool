@@ -21,8 +21,6 @@ export default function Toolbar() {
             <button onClick={undo} className="text-sm px-2 py-1 bg-gray-100 rounded">Undo</button>
             <button onClick={redo} className="text-sm px-2 py-1 bg-gray-100 rounded">Redo</button>
             <button onClick={() => exportAnnotations('json')} className="text-sm px-2 py-1 bg-gray-100 rounded">Export JSON</button>
-            <button onClick={() => exportAnnotations('xml')} className="text-sm px-2 py-1 bg-gray-100 rounded">Export XML</button>
-            <button onClick={() => exportAnnotations('coco')} className="text-sm px-2 py-1 bg-gray-100 rounded">Export COCO</button>
             <div className="ml-4 flex items-center">
                 <input
                     type="checkbox"
