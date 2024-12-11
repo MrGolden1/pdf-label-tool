@@ -8,18 +8,20 @@ import { ScaleProvider } from '../hooks/useScale';
 
 export default function App() {
     const [file, setFile] = useState(null);
+    const [filename, setFilename] = useState('');  // Add this state
 
     const handleFileChange = (event) => {
         const selectedFile = event.target.files[0];
         if (selectedFile) {
             setFile(selectedFile);
+            setFilename(selectedFile.name);  // Set the filename when file changes
         }
     };
 
     return (
         <ScaleProvider>
             <LabelProvider>
-                <AnnotationProvider>
+                <AnnotationProvider filename={filename}>  {/* Pass filename here */}
                     <div className="flex h-screen w-screen overflow-hidden">
                         {/* Sidebar for labels and file upload */}
                         <div className="w-64 bg-gray-100 border-r border-gray-300 flex flex-col">

@@ -9,16 +9,17 @@ import FileUpload from '../components/FileUpload'; // We'll create this componen
 
 export default function App() {
     const [file, setFile] = useState(null);
+    const [filename, setFilename] = useState('');
 
     return (
         <ScaleProvider>
             <LabelProvider>
-                <AnnotationProvider>
+                <AnnotationProvider filename={filename}>
                     <div className="flex h-screen w-screen overflow-hidden">
                         {/* Sidebar for labels and file upload */}
                         <div className="w-64 bg-gray-100 border-r border-gray-300 flex flex-col">
                             <div className="p-4 border-b border-gray-300">
-                                <FileUpload setFile={setFile} />
+                                <FileUpload setFile={setFile} setFilename={setFilename} />
                             </div>
                             <LabelSidebar />
                         </div>

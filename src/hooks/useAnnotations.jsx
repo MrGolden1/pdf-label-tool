@@ -3,13 +3,18 @@ import { v4 as uuidv4 } from 'uuid';
 
 const AnnotationContext = createContext();
 
-export function AnnotationProvider({ children }) {
+export function AnnotationProvider({ children, filename }) {
     // Changed to store annotations by page
     const [annotations, setAnnotations] = useState({});
     const [history, setHistory] = useState([]);
     const [future, setFuture] = useState([]);
     const [selectedAnnotationId, setSelectedAnnotationId] = useState(null);
     const [filteredAnnotations, setFilteredAnnotations] = useState([]);
+    const [currentFilename, setCurrentFilename] = useState(filename);
+
+    useEffect(() => {
+        setCurrentFilename(filename);
+    }, [filename]);
 
     const commitHistory = (newAnnotations) => {
         setHistory((prev) => [...prev, annotations]);
@@ -93,11 +98,14 @@ export function AnnotationProvider({ children }) {
             // Convert annotations to COCO format
             // ...conversion code...
         }
+        
         const blob = new Blob([data], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `annotations.${format}`;
+        // Use PDF filename but change extension
+        const exportName = currentFilename ? currentFilename.replace(/\.[^/.]+$/, '') : 'annotations';
+        a.download = `${exportName}.${format}`;
         a.click();
         URL.revokeObjectURL(url);
     };
@@ -106,6 +114,11 @@ export function AnnotationProvider({ children }) {
         setAnnotations({});
         setHistory([]);
         setFuture([]);
+    };
+
+    const importAnnotations = (loadedAnnotations) => {
+        commitHistory(annotations);
+        setAnnotations(loadedAnnotations);
     };
 
     return (
@@ -122,7 +135,8 @@ export function AnnotationProvider({ children }) {
             redo,
             exportAnnotations,
             deleteAnnotations,
-            clearAnnotations
+            clearAnnotations,
+            importAnnotations
         }}>
             {children}
         </AnnotationContext.Provider>
