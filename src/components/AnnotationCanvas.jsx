@@ -56,14 +56,16 @@ export default function AnnotationCanvas({ pageNumber }) {
         const y = (e.clientY - rect.top) / scale;
 
         if (actionType === 'draw') {
-            const width = x - startPoint.x;
-            const height = y - startPoint.y;
-            setTempAnnotation({ 
-                x: startPoint.x, 
-                y: startPoint.y, 
-                width, 
-                height, 
-                label: selectedLabel 
+            const left = Math.min(startPoint.x, x);
+            const top = Math.min(startPoint.y, y);
+            const width = Math.abs(x - startPoint.x);
+            const height = Math.abs(y - startPoint.y);
+            setTempAnnotation({
+                x: left,
+                y: top,
+                width,
+                height,
+                label: selectedLabel
             });
         } else if (actionType === 'move' && currentAnnotation) {
             setTempAnnotation({
@@ -85,19 +87,17 @@ export default function AnnotationCanvas({ pageNumber }) {
     const handleMouseUp = () => {
         if (!actionType) return;
         
-        if (tempAnnotation) {
-            if (actionType === 'draw') {
-                createAnnotation(tempAnnotation, pageNumber);
-            } else {
-                const normalizedAnnotation = {
-                    ...tempAnnotation,
-                    width: Math.abs(tempAnnotation.width),
-                    height: Math.abs(tempAnnotation.height),
-                    x: tempAnnotation.width < 0 ? tempAnnotation.x + tempAnnotation.width : tempAnnotation.x,
-                    y: tempAnnotation.height < 0 ? tempAnnotation.y + tempAnnotation.height : tempAnnotation.y
-                };
-                updateAnnotation(normalizedAnnotation, pageNumber);
-            }
+        if (tempAnnotation && actionType === 'draw') {
+            createAnnotation(tempAnnotation, pageNumber);
+        } else if (tempAnnotation) {
+            const normalizedAnnotation = {
+                ...tempAnnotation,
+                width: Math.abs(tempAnnotation.width),
+                height: Math.abs(tempAnnotation.height),
+                x: tempAnnotation.width < 0 ? tempAnnotation.x + tempAnnotation.width : tempAnnotation.x,
+                y: tempAnnotation.height < 0 ? tempAnnotation.y + tempAnnotation.height : tempAnnotation.y
+            };
+            updateAnnotation(normalizedAnnotation, pageNumber);
         }
         
         setActionType(null);
@@ -109,9 +109,14 @@ export default function AnnotationCanvas({ pageNumber }) {
     // Add keyboard handler to delete the selected annotation
     useEffect(() => {
         const handleKeyDown = (e) => {
+            e.preventDefault();
             if (e.key === 'Delete' && selectedAnnotationId) {
                 deleteAnnotations([selectedAnnotationId], pageNumber);
                 setSelectedAnnotationId(null);
+            } else if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                // Add your export logic here
+                console.log('Export annotations as JSON');
             }
         };
         window.addEventListener('keydown', handleKeyDown);
@@ -121,7 +126,7 @@ export default function AnnotationCanvas({ pageNumber }) {
     // Updated calculateLabelStyle to accept annotation parameter
     const calculateLabelStyle = (annotation, width, height) => {
         const boxSize = Math.sqrt(width * height);
-        const baseFontSize = boxSize * 0.1; // 10% of box size
+        const baseFontSize = boxSize * 0.08; // Adjusted for better scaling
         const fontSize = Math.min(Math.max(10, baseFontSize), 16); // Clamp between 10px and 16px
         
         return {
@@ -130,7 +135,11 @@ export default function AnnotationCanvas({ pageNumber }) {
             color: annotation.label?.color,
             transform: `translateY(-100%)`, // Move label above box
             padding: `${fontSize * 0.2}px ${fontSize * 0.4}px`, // Proportional padding
-            whiteSpace: 'nowrap'
+            whiteSpace: 'nowrap',
+            pointerEvents: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px'
         };
     };
 
@@ -180,12 +189,17 @@ export default function AnnotationCanvas({ pageNumber }) {
                         />
 
                         {ann.label && showLabels && (
-                            <span 
-                                className="absolute left-0 top-0 rounded select-none"
+                            <div 
+                                className="absolute left-0 top-0 rounded select-none flex items-center gap-1"
                                 style={calculateLabelStyle(ann, ann.width * scale, ann.height * scale)}
                             >
-                                {ann.label.name}
-                            </span>
+                                <span>{ann.label.name}</span>
+                                {ann.label.shortcut && (
+                                    <span className="px-1 bg-white/50 rounded text-[0.8em] font-mono">
+                                        {ann.label.shortcut}
+                                    </span>
+                                )}
+                            </div>
                         )}
                     </div>
                 )

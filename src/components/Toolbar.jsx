@@ -8,13 +8,23 @@ export default function Toolbar() {
 
     useEffect(() => {
         const handleKeyDown = (e) => {
-            if (e.ctrlKey && e.key === 'z') undo();
-            if (e.ctrlKey && e.key === 'y') redo();
+            if (e.ctrlKey && e.key === 'z') {
+                e.preventDefault();
+                undo();
+            }
+            if (e.ctrlKey && e.key === 'y') {
+                e.preventDefault();
+                redo();
+            }
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                exportAnnotations('json');
+            }
             // Add other shortcuts as needed
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [undo, redo]);
+    }, [undo, redo, exportAnnotations]);
 
     return (
         <div className="h-10 border-b border-gray-300 flex items-center px-2 space-x-2 bg-white">
